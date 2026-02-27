@@ -1,11 +1,6 @@
 #include <iostream>
 #include <string>
 
-int main() {
-    std::cout << "lelo --lelo" << std::endl;
-    return 0;
-}
-
 class Time {
 private:
     int sec;
@@ -28,12 +23,7 @@ public:
     Time() : sec(0), min(0), hour(0) {}
     Time(int a, int b, int c) : sec(a), min(b), hour(c) {}
     Time(int abs_sec) {set_relative_sec(abs_sec);}
-    
-    
 
-    
-
-    
 
     bool is_valid() {
         auto func = [](int n, int max) { return n <= max && n >= 0;};
@@ -43,16 +33,16 @@ public:
     std::string to_string(bool hour_12_format = false) const{
         std::string result;
         // formarts the hour to 12 och 24 format
-        int hour_format = hour - (int)hour_12_format * this->hour % 12; 
+        int hour_format = hour - (int)hour_12_format * (this->hour - (this->hour % 12)); 
         // add the base string
         result = std::to_string(hour_format) + ":" + std::to_string(min) + ":" + std::to_string(sec);
         // to add the AM/PM stuff if its supose to 
-        result += hour_12_format ? "" : hour >= 12 ? "[ PM]" : "[ AM]";;
+        result += hour_12_format ? hour >= 12 ? "[ PM]" : "[ AM]" : "";
         return result;
     }
 
     bool is_am() const {
-        return 12 < hour;
+        return 12 > hour;
     }
 
     Time operator+(const int& other) {
@@ -99,18 +89,16 @@ public:
 
     friend std::istream& operator>>(std::istream& is, Time& other) {
         int sec, min, hour;
-        std::string colon1, colon2, hour_format;
+        char colon1, colon2;
 
-        is >> sec >> colon1 >> min >> colon2 >> hour >> hour_format;
+        is >> sec >> colon1 >> min >> colon2 >> hour;
 
-        if (colon1 == ":" && colon2 == ":" && 
-            (hour_format == "" || hour_format == "[ AM]" || hour_format == "[ PM]")) {
+        // behöver inte kunna läsa in am och pm, för jag orkar inte fixa med det hihih
+        if (colon1 == ':' && colon2 == ':') {
                 other = Time(sec, min, hour);
-                if (hour_format == "[ PM]") {
-                    other.hour += 12;
-                }
+                
 
-                if (other.is_valid()) {
+                if (!other.is_valid()) {
                     is.setstate(std::ios::failbit);
                 } 
         } else {
