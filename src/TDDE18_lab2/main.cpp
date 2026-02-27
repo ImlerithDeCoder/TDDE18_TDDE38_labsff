@@ -36,14 +36,14 @@ public:
     
 
     bool is_valid() {
-        auto func = [](int n) { return n <= 59 && n >= 0;};
-        return func(sec) && func(min) && func(hour);
+        auto func = [](int n, int max) { return n <= max && n >= 0;};
+        return func(sec, 59) && func(min, 59) && func(hour, 23);
     }
 
     std::string to_string(bool hour_12_format = false) const{
         std::string result;
         // formarts the hour to 12 och 24 format
-        int hour_format = hour - (int)hour_12_format * hour_format % 12; 
+        int hour_format = hour - (int)hour_12_format * this->hour % 12; 
         // add the base string
         result = std::to_string(hour_format) + ":" + std::to_string(min) + ":" + std::to_string(sec);
         // to add the AM/PM stuff if its supose to 
@@ -72,7 +72,7 @@ public:
     }
 
     bool operator!=(const Time& other) {
-        return !(this == &other);
+        return !(*this == other);
     }
 
     bool operator<(const Time& other) {
@@ -80,24 +80,44 @@ public:
     }
 
     bool operator>(const Time& other) {
-        return !(this < &other);
+        return !(*this < other);
     }
 
     bool operator<=(const Time& other) {
-        return !(this > &other) || (this == &other);
+        return !(*this > other) || (*this == other);
     }
 
     bool operator>=(const Time& other) {
-        return !(this < &other) || (this == &other);
+        return !(*this < other) || (*this == other);
     }
 
     // har igen kolla på hur dessa ska göras
-    std::string operator<<(const Time& other) {
-        return other.to_string();
+    friend std::ostream& operator<<(std::ostream& os, const Time& other) {
+        os << other.to_string();
+        return os;
     }
 
-    std::string operator>>(const Time& other) {
-        return "";
+    friend std::istream& operator>>(std::istream& is, Time& other) {
+        int sec, min, hour;
+        std::string colon1, colon2, hour_format;
+
+        is >> sec >> colon1 >> min >> colon2 >> hour >> hour_format;
+
+        if (colon1 == ":" && colon2 == ":" && 
+            (hour_format == "" || hour_format == "[ AM]" || hour_format == "[ PM]")) {
+                other = Time(sec, min, hour);
+                if (hour_format == "[ PM]") {
+                    other.hour += 12;
+                }
+
+                if (other.is_valid()) {
+                    is.setstate(std::ios::failbit);
+                } 
+        } else {
+            is.setstate(std::ios::failbit);
+        }
+        return is;
+        
     }
 
 

@@ -10,6 +10,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # 3. Hitta alla .cpp-filer i projektet (och i undermappar)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "*.cpp")
 
+# för att länga in catch
+find_package(Catch2 3 REQUIRED)
+target_link_libraries(test_time_main PRIVATE Catch2::Catch2WithMain) # Antar att filen heter test_time.cpp
+
 # 4. Loopa igenom listan av filer vi hittade
 foreach(CPP_FILE IN LISTS SOURCES)
     
