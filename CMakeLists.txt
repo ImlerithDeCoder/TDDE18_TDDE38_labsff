@@ -33,3 +33,4 @@ add_executable(test_labb3 "tester/test_tdde18_labb3.cpp")
 
 # Länka in Catch2
 target_link_libraries(test_labb2 PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(test_labb3 PRIVATE Catch2::Catch2WithMain)
