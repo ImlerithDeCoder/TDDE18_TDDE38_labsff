@@ -15,8 +15,6 @@ template <comparable T>
 struct node {
     node* next;
     T data;
-    bool first;
-    bool last;
 
     node(T data) : data(data), next(nullptr) {}
 };
@@ -25,13 +23,22 @@ template<comparable T>
 class LinkList {
 public: 
 
-    LinkList() {
-        first_ = nullptr;
-        length_ = 0;
-    }
+    LinkList() {}
 
     ~LinkList() {
         delete_list(this->first_);
+    }
+
+    LinkList(const LinkList& other) {
+        auto current = other.first_;
+        while (current != nullptr) {
+            this->insert(current->data);
+            current = current->next;
+        }
+    }
+
+    void operator=(const LinkList& other) {
+        
     }
 
     // inserts data in sorted order
@@ -140,11 +147,11 @@ public:
     }
 
 private:
-    node<T>* first_;
-    int length_;
+    node<T>* first_ = nullptr;
+    int length_ = 0;
 
     void delete_list(node<T>* current) {
-        if (is_empty()) {
+        if (current == nullptr) {
             return;
         } else {
             delete_list(current->next);
