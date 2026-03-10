@@ -1,6 +1,7 @@
 #include <iostream>
 #include <concepts>
 #include <sstream>
+#include <stdexcept>
 
 // denna var ganska cool faktiskt:)
 template <typename T>
@@ -14,6 +15,8 @@ template <comparable T>
 struct node {
     node* next;
     T data;
+    bool first;
+    bool last;
 
     node(T data) : data(data), next(nullptr) {}
 };
@@ -28,45 +31,69 @@ public:
     }
 
     ~LinkList() {
-        node<T>* current = first_;
-        while (current != nullptr) {
-            node<T>* next = current->next;
-            delete current;
-            current = next;
-        }
+        delete_list(this->first_);
     }
+
     // inserts data in sorted order
     void insert(T data) {
         auto new_node = new node(data);
-        // current är alltså en pekare till nuvarande noden
-        auto current = this->first_;
 
-        while (current != nullptr) {
-            if (current->next == nullptr) {
-                // då ska new node läggas in direkt som nästa
-                current->next = new_node;
-                new_node->data = data;
-                new_node->next = nullptr;
-                length_++;
-                return;
-            }
-            else if (current->data < data && current->next->data > data) {
-                // då ska new node in mellan current och current->next
-                new_node->next = current->next;
-                current->next = new_node;
-                length_++;
-                return;
-            }
-            // flytta fram current
+        if (this->first_ == nullptr || data < first_->data) {
+            // new ska in på första platsen
+            new_node->next = this->first_;
+            this->first_ = new_node;
+            this->length_++;
+            return;
+        }
+
+        auto current = this->first_;
+        while (current->next != nullptr && data > current->next->data) {
             current = current->next;
         }
-        this->first_ = new_node; 
-        length_++;
+
+        // new ska in efter current och innan current->next
+        new_node->next = current->next;
+        current->next = new_node;
+        this->length_++;
+
     }
     
     // removes entry based on index
-    T remove(int index) {
-        return T();
+    T remove(int target) {
+        if (target < 0 || target >= this->length_){
+            throw std::out_of_range("Index out of range");
+        }
+        
+        
+        T data;        
+        int itter = 0;
+        auto current = first_;
+        auto prev = first_;
+
+        // vi vill lopa fram tills vi har att current är de nummret i ordningen som target
+        while (target-1 > itter && current->next != nullptr) {
+            itter++;
+            current = current->next;
+            // current är noden innan den som ska bort
+        }
+        
+
+        // om vi ska ta bort entryn på första platsen i listan
+        if (target == 0) {
+            auto to_remove = this->first_;
+            data = to_remove->data;
+            this->first_ = this->first_->next;
+            delete to_remove;
+        } else {
+            auto to_remove = current->next;
+            data = to_remove->data;
+            current->next = current->next->next;
+            delete to_remove;
+        }
+
+        this->length_--;
+        return data;
+
     }
     
     // prints the whole list, e.g.  [1, 2, 3] 
@@ -104,9 +131,26 @@ public:
         return current->data;
     }
 
+    int length() {
+        return this->length_;
+    }
+
+    bool is_empty() {
+        return this->length_ == 0;
+    }
+
 private:
     node<T>* first_;
     int length_;
+
+    void delete_list(node<T>* current) {
+        if (is_empty()) {
+            return;
+        } else {
+            delete_list(current->next);
+            delete current;
+        }
+    }
 
     
 
