@@ -37,8 +37,12 @@ public:
         }
     }
 
-    void operator=(const LinkList& other) {
-        
+    LinkList* operator=(const LinkList other) {
+        //this->delete_list(this->first_);
+        //this->first_ = other.first_;
+        //this->length_ = other.length_;
+        //return *this;
+        // de här funkar ju inte
     }
 
     // inserts data in sorted order
