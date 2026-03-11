@@ -27,8 +27,10 @@ public:
 
     ~LinkList() {
         delete_list(this->first_);
+        length_ = 0;
     }
 
+    // copy constructor
     LinkList(const LinkList& other) {
         auto current = other.first_;
         while (current != nullptr) {
@@ -36,14 +38,62 @@ public:
             current = current->next;
         }
     }
+    
+    // move constructor
+    LinkList(LinkList&& other) {
+        node<T>* tmp = other.first_;
+        other.first_ = this->first_;
 
-    LinkList* operator=(const LinkList other) {
-        //this->delete_list(this->first_);
-        //this->first_ = other.first_;
-        //this->length_ = other.length_;
-        //return *this;
-        // de här funkar ju inte
+        this->length_ = other.length_;
+        this->first_ = tmp;
+
+        // eftersom other sickas med && alltså som ett rvalue, kommer användaren att ta bort other
+        // kort efter detta
     }
+
+    // copy assigment operator
+    /*
+    vad ska den göra?
+        Den ska ta bort this eller lvalue, samt göra så att 
+        lvalue blir ett nytt opjekt som är lika dant, 
+        men med nytt minne, alltså en djup copia
+    */
+    LinkList& operator=(const LinkList& other) {
+        if (this != &other) {// undviker self coppying
+            delete_list(this->first_);// rensa nuvarande 
+            this->first_ = nullptr;
+            this->length_ = 0;
+            
+            auto curr = other.first_;
+            while (curr != nullptr) {
+                this->insert(curr->data);
+                curr = curr->next;
+            }
+            this->length_ = other.length_;
+        }
+        
+        return *this;
+    }
+
+    // move assigmenet
+    LinkList& operator=(LinkList&& other) {
+        if (this != &other) { // så vi undviker self assignmenet
+            delete_list(this->first_);// rensa nuvarande 
+
+            // sätter över other till this
+            this->first_ = other.first_;
+            this->length_ = other.length_;
+
+            // så att others destruktor och tar bort this ochså eftersom de pekar på samma
+            // samt others destruktor körs direkt när den går utanför scoap, därav && på den
+            other.first_ = nullptr;
+            other.length_ = 0;
+        }
+
+        return *this;
+    }
+
+    
 
     // inserts data in sorted order
     void insert(T data) {
@@ -147,7 +197,7 @@ public:
     }
 
     bool is_empty() {
-        return this->length_ == 0;
+        return length() == 0;
     }
 
 private:
