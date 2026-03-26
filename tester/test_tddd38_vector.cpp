@@ -1,4 +1,5 @@
 #include "../src/TDDD38_mathematical_vector/Vector2D.hpp"
+#include <catch2/catch_test_macros.hpp>
 #include <cassert>
 #include <sstream>
 #include <iostream>

@@ -30,7 +30,10 @@ FetchContent_MakeAvailable(Catch2)
 # Skapa BARA en körbar fil för ditt testprogram
 add_executable(test_labb2 "tester/test_tdde18_labb2.cpp")
 add_executable(test_labb3 "tester/test_tdde18_labb3.cpp")
+add_executable(test_vector "tester/test_tddd38_vector.cpp" "src/TDDD38_mathematical_vector/Vector2D.cpp")
+
 
 # Länka in Catch2
 target_link_libraries(test_labb2 PRIVATE Catch2::Catch2WithMain)
 target_link_libraries(test_labb3 PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(test_vector PRIVATE Catch2::Catch2WithMain)
