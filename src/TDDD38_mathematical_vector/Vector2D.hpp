@@ -7,7 +7,19 @@ public:
     Vector2D(double x, double y) : x(x), y(y) {}
     Vector2D() : x(0), y(0) {}
 
-    void negate();
+    // copy constructer
+    Vector2D(const Vector2D& other);
+    // move constructer
+    Vector2D(Vector2D&& other);    
+    // destructor
+    ~Vector2D();
+    // copy assignment
+    Vector2D& operator=(const Vector2D& other);
+    // move assignment
+    Vector2D& operator=(Vector2D&& other);
+
+
+
     Vector2D operator-() const; //returns the negation of this vec 
 
     Vector2D operator+(const Vector2D& other) const;
@@ -38,7 +50,7 @@ public:
     bool operator!=(const Vector2D& other) const;
     double length() const;
 
-
+    
 
 
 
