@@ -1,5 +1,8 @@
 #include "Vector2D.hpp"
 #include <cmath>
+#include <iostream>
+#include <sstream>
+
 
 
 // the big five
@@ -129,11 +132,23 @@ Vector2D& Vector2D::operator/=(double const num) {
 
 // format Vector v { 3.0 , 4.0 } --> "(3, 4)"
 std::ostream& operator<<(std::ostream& os, const Vector2D& vec) {
+    os << "(" << vec.get_x() << ", " << vec.get_y() << ")";
     return os;
 }
 // should be read as "(3, 4)", if incorrect formating, set the failbit in istream, 
 // by calling the setstatus function, eg std::cin.setstate(std::ios::failbit);
 std::istream& operator>>(std::istream& is, Vector2D& vec) {
+    char l, koma, r;
+    double x, y; 
+    is >> l >> x >> koma >> y >> r;
+
+    if (l == '(' && r == ')' && koma == ',') {
+        vec.set_x(x);
+        vec.set_y(y);
+
+    } else {
+        is.setstate(std::ios::failbit);
+    }
     return is;
 }
 
