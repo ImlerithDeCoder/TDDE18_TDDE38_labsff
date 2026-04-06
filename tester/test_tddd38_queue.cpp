@@ -1,6 +1,7 @@
-#include "../src/TDDD38_static_queue/queue.hpp";
-#include <catch2/catch_test_macros.hpp>
+#include "../src/TDDD38_static_queue/queue.hpp"
+#include "catch2/catch_test_macros.hpp"
 #include <cassert>
+
 
 
 TEST_CASE("gives tests") {
@@ -42,9 +43,9 @@ TEST_CASE("gives tests") {
   REQUIRE(!q1.empty());
   REQUIRE(q1.full());
   
-  assert_throws(q1.enqueue(6));
+  REQUIRE_THROWS(q1.enqueue(6));
   
-  Queue<int, 10> q3 {q1.copy_and_expand<5>()};
+  Queue<int, 10> q3{q1.copy_and_expand<5>()};
 
   REQUIRE(!q3.empty());
   REQUIRE(!q3.full());

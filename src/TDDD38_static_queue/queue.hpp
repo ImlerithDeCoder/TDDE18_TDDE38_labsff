@@ -23,22 +23,25 @@ class Queue {
 public:
     // att ta in size some en template gör tydligen att de går snabbare för kompilatorn
     // för då kan den börja allokera platts innan klassen börjat initizeras
-    static_assert(CAPACITY <= 0, "Size must be > 0.");
+    static_assert(CAPACITY >= 0, "Size must be > 0.");
 
     Queue() {}
 
 
     ~Queue() {
         while(!empty()) {
-            delete dequeue();
+            delete &dequeue();
         }
         free(queue_);
     }
     
 
     // copy assignment operator
-    Queue operator=(const Queue& other) {
-        if (this == &other) {return;}// avoid self assigmenet
+    Queue& operator=(const Queue& other) {
+        // avoid self assigmenet
+        // checks if other points to the same memmory as the pointer this
+        // returns a referense to this, by refing it
+        if (this == &other) {return *this;}
         
         this->head_ = 0;
         this->tail_ = 0;
@@ -55,11 +58,11 @@ public:
     Queue(const Queue& other) {
         if (this == &other) {return;}// avoid self assigmenet
         
-        delete this;
-        this = new Queue<T, CAPACITY>();
-        while (!other.empty()) {
-            T tmp = other.dequeue();
-            this->enqueue(tmp);// här är de ju lite onödigt att göra en kopia, men jaja igen
+        for (int i = 0; i < size_; i++) {
+            // other CAPACITY och this CAPACITY måste vara samma 
+            // om de ska vara en copy konstrukotr, right?
+            T tmp = other.queue_[(other.head_ + i) % CAPACITY];
+            this->enqueue(tmp);
         }
     }
 
@@ -67,14 +70,25 @@ public:
     Queue(Queue&& other) {
         if (this == &other) {return;}// avoid self assigmenet
         
-        // glömm inte att logga timmar!;)
-        
+
+        this->head_ = other.head_;
+        this->tail_ = other.tail_;
+        this->size_ = other.size_;
+        this->queue_ = other.queue_;
+
+        this->head_ = other.head_;
+        this->tail_ = other.tail_;
+        this->size_ = other.size_;
     }
 
     // move assigmenet
-    Queue operator=(Queue&& other) {
-        if (this == &other) {return;}// avoid self assigmenet
-        
+    Queue& operator=(Queue&& other) {
+        if (this == &other) {return *this;}// avoid self assigmenet
+        std::swap(this->head_, other.head_);
+        std::swap(this->tail_, other.tail_);
+        std::swap(this->size_, other.size_);
+        std::swap(this->queue_, other.queue_);
+        return *this;
 
     }
 
@@ -116,32 +130,35 @@ public:
         return size_ == CAPACITY;
     }
 
-    T& front() const {
+    const T& front() const {
         return queue_[head_];
     }
 
     
     template<size_t M>
-    void copy_and_expand() {
-        Queue* new_queue = new Queue<T, CAPACITY+M>();
-        while (!this->empty()) {
-            T tmp = this->dequeue();
-            new_queue->enqueue(tmp);
-            delete tmp;
+    Queue<T, CAPACITY+M> copy_and_expand() const {
+        Queue<T, CAPACITY+M> new_queue;
+        int index = head_;
+        for (int i = 0; i < size_; i++) {
+            index += 1;
+            index %= CAPACITY;
+
+            new_queue.enqueue(queue_[index]);
         }
-        delete this;
-        this = std::move(new_queue);
+        return new_queue;
     }
 
 private:
-    T* queue_ = malloc(sizeof(T)*CAPACITY);
+    //T* queue_ = static_cast<T*>(std::malloc(sizeof(T)*CAPACITY));
+    // man ska tydligen inte använda malloc i c++, men operator new[] gör samma sak
+    // medan new T[CAPACITY] initierar minnet med konstruktorn för T.
+
+    // allokerar rått minne
+    T* queue_ = static_cast<T*>(operator new[](sizeof(T)*CAPACITY));
+    
     size_t head_{0};
     size_t tail_{0};
     size_t size_{0};
-    
-
-    
-
 
 
 
